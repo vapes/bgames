@@ -2,7 +2,11 @@
 <html lang="ru">
 	<head>
 		<meta charset="UTF-8" />
-		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+		<meta name="screen-orientation" content="portrait" />
+		<meta name="x5-orientation" content="portrait" />
+		<meta name="full-screen" content="yes" />
+		<meta name="x5-fullscreen" content="true" />
 		<title>Игра подбрасывания монетки</title>
 		<style>
 			body {
@@ -129,8 +133,108 @@
 			}
 
 			/* Кнопки теперь создаются в Three.js */
+
+			/* Принудительная портретная ориентация только для мобильных */
+			@media screen and (orientation: landscape) and (max-width: 768px) {
+				body {
+					transform: rotate(90deg);
+					transform-origin: center center;
+					width: 100vh;
+					height: 100vw;
+					overflow: hidden;
+				}
+			}
 		</style>
-		<script type="module" crossorigin src="./assets/index.js"></script>
+		<script type="module" src="/src/main.ts"></script>
+		<script>
+			// Автоматический полноэкранный режим только на мобильных устройствах
+			let fullscreenRequested = false;
+
+			// Определяем Android устройство
+			function isAndroidDevice() {
+				const isAndroid = /Android/i.test(navigator.userAgent);
+
+				if (isAndroid) {
+					console.log('Игра запущена на Android устройстве');
+					console.log('User-Agent:', navigator.userAgent);
+					console.log('Размер экрана:', window.innerWidth + 'x' + window.innerHeight);
+				} else {
+					console.log('Игра запущена не на Android устройстве');
+				}
+
+				return isAndroid;
+			}
+
+			function requestFullscreen() {
+				if (fullscreenRequested || !isAndroidDevice()) return;
+				fullscreenRequested = true;
+
+				const elem = document.documentElement;
+
+				try {
+					if (elem.requestFullscreen) {
+						elem.requestFullscreen().catch((err) => {
+							console.log('Полноэкранный режим не поддерживается или заблокирован:', err);
+						});
+					} else if (elem.webkitRequestFullscreen) {
+						elem.webkitRequestFullscreen().catch((err) => {
+							console.log('Полноэкранный режим не поддерживается или заблокирован:', err);
+						});
+					} else if (elem.msRequestFullscreen) {
+						elem.msRequestFullscreen().catch((err) => {
+							console.log('Полноэкранный режим не поддерживается или заблокирован:', err);
+						});
+					} else {
+						console.log('Полноэкранный режим не поддерживается в этом браузере');
+					}
+				} catch (error) {
+					console.log('Ошибка при запросе полноэкранного режима:', error);
+				}
+			}
+
+			// Глобальная переменная для отслеживания первого нажатия на кнопку
+			let firstButtonClick = false;
+
+			// Функция для запроса полноэкранного режима при первом нажатии на кнопку
+			function requestFullscreenOnButtonClick() {
+				if (fullscreenRequested || !isAndroidDevice() || firstButtonClick) {
+					return;
+				}
+
+				firstButtonClick = true;
+				fullscreenRequested = true;
+
+				const elem = document.documentElement;
+
+				try {
+					if (elem.requestFullscreen) {
+						elem.requestFullscreen().catch(() => {
+							// Игнорируем ошибки полноэкранного режима
+						});
+					} else if (elem.webkitRequestFullscreen) {
+						elem.webkitRequestFullscreen().catch(() => {
+							// Игнорируем ошибки полноэкранного режима
+						});
+					} else if (elem.msRequestFullscreen) {
+						elem.msRequestFullscreen().catch(() => {
+							// Игнорируем ошибки полноэкранного режима
+						});
+					}
+				} catch (error) {
+					// Игнорируем ошибки полноэкранного режима
+				}
+			}
+
+			// Экспортируем функцию для использования в Three.js
+			window.requestFullscreenOnButtonClick = requestFullscreenOnButtonClick;
+
+			// Принудительно блокируем ориентацию в портретном режиме только на мобильных
+			if (window.innerWidth <= 768 && screen.orientation && screen.orientation.lock) {
+				screen.orientation.lock('portrait').catch(() => {
+					// Игнорируем ошибки блокировки ориентации
+				});
+			}
+		</script>
 	</head>
 	<body>
 		<div id="result"></div>

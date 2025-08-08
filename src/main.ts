@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import MobileDetect from 'mobile-detect';
 
 class CoinTossGame {
 	private scene: THREE.Scene;
@@ -17,21 +18,43 @@ class CoinTossGame {
 	private balance: number = 1000;
 	private betAmount: number = 10;
 	private balanceElement: HTMLElement;
+	private isMobile: boolean;
 	// private betInfoElement: HTMLElement; // Не используется
 
 	constructor() {
+		// Определяем размер экрана
+		const screenWidth = window.innerWidth;
+		const screenHeight = window.innerHeight;
+		const screenRatio = screenWidth / screenHeight;
+
 		this.scene = new THREE.Scene();
 		// Камера смотрит сверху вниз с лучшим обзором
 		this.camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
 
-		// Адаптируем позицию камеры для мобильных устройств
-		if (window.innerWidth <= 768) {
-			// Для мобильных устройств - более высокий угол обзора
-			this.camera.position.set(0, 8, 6);
+		// Определяем мобильное устройство
+		const md = new MobileDetect(window.navigator.userAgent);
+		const isMobile = md.mobile() !== null;
+
+		// Адаптируем позицию камеры для лучшего обзора кнопок
+		if (isMobile) {
+			// Для мобильных устройств - адаптируем под размер экрана
+			if (screenRatio < 0.6) {
+				// Очень узкий экран - более высокий угол обзора
+				this.camera.position.set(0, 7, 5);
+			} else if (screenRatio < 0.8) {
+				// Средний экран
+				this.camera.position.set(0, 6, 4);
+			} else {
+				// Широкий экран
+				this.camera.position.set(0, 5, 3);
+			}
 		} else {
 			this.camera.position.set(0, 6, 4);
 		}
 		this.camera.lookAt(0, 0, 0);
+
+		// Сохраняем информацию о мобильном устройстве для использования в других методах
+		this.isMobile = isMobile;
 
 		this.renderer = new THREE.WebGLRenderer({ antialias: true });
 		this.renderer.setSize(window.innerWidth, window.innerHeight);
@@ -44,7 +67,7 @@ class CoinTossGame {
 
 		this.setupLighting();
 		this.createCoin();
-		this.createBetButtons();
+		this.createBetButtons(screenRatio); // Передаем screenRatio
 		this.setupEventListeners();
 		this.animate();
 	}
@@ -112,7 +135,7 @@ class CoinTossGame {
 		this.scene.add(this.coin);
 	}
 
-	private createBetButtons(): void {
+	private createBetButtons(screenRatio: number): void {
 		const textureLoader = new THREE.TextureLoader();
 
 		// Загружаем текстуры кнопок
@@ -122,8 +145,25 @@ class CoinTossGame {
 
 		// this.betButtonTextures = [headsBtnTexture, tailsBtnTexture, edgeBtnTexture]; // Не используется
 
-		// Создаем геометрию для кнопок (плоские прямоугольники)
-		const buttonSize = window.innerWidth <= 768 ? 1.5 : 1; // Больше кнопки на мобильных
+		// Используем размер экрана из конструктора
+
+		// Адаптивный размер кнопок
+		let buttonSize;
+		if (this.isMobile) {
+			if (screenRatio < 0.6) {
+				// Очень узкий экран (портрет) - уменьшаем размер
+				buttonSize = 0.8;
+			} else if (screenRatio < 0.8) {
+				// Средний экран - средний размер
+				buttonSize = 1.0;
+			} else {
+				// Широкий экран - немного больше
+				buttonSize = 1.2;
+			}
+		} else {
+			buttonSize = 1;
+		}
+
 		const buttonGeometry = new THREE.PlaneGeometry(buttonSize, buttonSize);
 
 		// Создаем материалы для кнопок с текстурами и яркими цветами
@@ -153,18 +193,33 @@ class CoinTossGame {
 
 		// Тестовые кнопки убраны - текстуры работают
 
-		// Позиционируем кнопки ближе к камере
-		// Позиционируем кнопки
-		if (window.innerWidth <= 768) {
-			// Для мобильных - более компактное расположение
-			headsButton.position.set(-1.5, 0, 2);
-			edgeButton.position.set(0, 0, 2); // Ребро по центру
-			tailsButton.position.set(1.5, 0, 2);
+		// Позиционируем кнопки с учетом размера экрана
+		// Динамически позиционируем кнопки на основе размера экрана
+		let buttonSpacing, buttonZ;
+
+		if (this.isMobile) {
+			if (screenRatio < 0.6) {
+				// Очень узкий экран - кнопки ближе друг к другу
+				buttonSpacing = buttonSize * 1.1;
+				buttonZ = 2.0; // Ближе к камере
+			} else if (screenRatio < 0.8) {
+				// Средний экран - среднее расстояние
+				buttonSpacing = buttonSize * 1.2;
+				buttonZ = 2.5;
+			} else {
+				// Широкий экран - больше места
+				buttonSpacing = buttonSize * 1.4;
+				buttonZ = 3.0;
+			}
 		} else {
-			headsButton.position.set(-2, 0, 2);
-			edgeButton.position.set(0, 0, 2); // Ребро по центру
-			tailsButton.position.set(2, 0, 2);
+			buttonSpacing = 2;
+			buttonZ = 2;
 		}
+
+		// Позиционируем кнопки
+		headsButton.position.set(-buttonSpacing, 0, buttonZ);
+		edgeButton.position.set(0, 0, buttonZ); // Ребро по центру
+		tailsButton.position.set(buttonSpacing, 0, buttonZ);
 
 		// Поворачиваем кнопки лицом к камере
 		headsButton.rotation.x = -Math.PI / 2;
@@ -194,17 +249,58 @@ class CoinTossGame {
 	}
 
 	private setupEventListeners(): void {
+		// Обработчики для десктопа
 		window.addEventListener('click', (event) => this.handleClick(event));
+
+		// Обработчики для мобильных устройств
+		window.addEventListener('touchstart', (event) => this.handleTouch(event));
+		window.addEventListener('touchend', (event) => this.handleTouch(event));
+
+		// Обработчик клика по canvas для полноэкранного режима
+		this.renderer.domElement.addEventListener('click', (event) => this.handleCanvasClick(event));
+
 		window.addEventListener('resize', () => this.onWindowResize());
 	}
 
 	private handleClick(event: MouseEvent): void {
-		if (this.tossing) return;
+		this.handleInteraction(event.clientX, event.clientY);
+	}
 
-		// Получаем координаты мыши в нормализованных координатах (-1 до 1)
+	private handleTouch(event: TouchEvent): void {
+		if (event.touches.length > 0) {
+			const touch = event.touches[0];
+			this.handleInteraction(touch.clientX, touch.clientY);
+		}
+	}
+
+	private handleCanvasClick(_event: MouseEvent): void {
+		// Проверяем, что это Android устройство
+		if (/Android/i.test(navigator.userAgent)) {
+			// Запрашиваем полноэкранный режим
+			const elem = document.documentElement as any;
+			try {
+				if (elem.requestFullscreen) {
+					elem.requestFullscreen().catch(() => {});
+				} else if (elem.webkitRequestFullscreen) {
+					elem.webkitRequestFullscreen().catch(() => {});
+				} else if (elem.msRequestFullscreen) {
+					elem.msRequestFullscreen().catch(() => {});
+				}
+			} catch (error) {
+				// Игнорируем ошибки
+			}
+		}
+	}
+
+	private handleInteraction(clientX: number, clientY: number): void {
+		if (this.tossing) {
+			return;
+		}
+
+		// Получаем координаты в нормализованных координатах (-1 до 1)
 		const mouse = new THREE.Vector2();
-		mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-		mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+		mouse.x = (clientX / window.innerWidth) * 2 - 1;
+		mouse.y = -(clientY / window.innerHeight) * 2 + 1;
 
 		// Создаем луч для определения пересечения
 		const raycaster = new THREE.Raycaster();
@@ -228,7 +324,9 @@ class CoinTossGame {
 	}
 
 	private makeBet(bet: 'heads' | 'tails' | 'edge'): void {
-		if (this.tossing) return;
+		if (this.tossing) {
+			return;
+		}
 		if (this.balance < this.betAmount) {
 			alert('Недостаточно средств для ставки!');
 			return;
@@ -314,8 +412,8 @@ class CoinTossGame {
 		this.renderer.setSize(window.innerWidth, window.innerHeight);
 
 		// Адаптируем камеру при изменении размера окна
-		if (window.innerWidth <= 768) {
-			this.camera.position.set(0, 8, 6);
+		if (this.isMobile) {
+			this.camera.position.set(0, 6, 4);
 		} else {
 			this.camera.position.set(0, 6, 4);
 		}
