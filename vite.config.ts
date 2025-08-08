@@ -7,12 +7,12 @@ export default defineConfig({
 	},
 	build: {
 		outDir: 'dist',
-		sourcemap: true,
+		sourcemap: false, // Отключаем sourcemap для уменьшения размера
 		rollupOptions: {
 			output: {
-				assetFileNames: 'assets/[name]-[hash][extname]',
-				chunkFileNames: 'assets/[name]-[hash].js',
-				entryFileNames: 'assets/[name]-[hash].js'
+				assetFileNames: 'assets/[name][extname]',
+				chunkFileNames: 'assets/[name].js',
+				entryFileNames: 'assets/[name].js'
 			}
 		}
 	},
