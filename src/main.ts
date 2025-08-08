@@ -23,7 +23,14 @@ class CoinTossGame {
 		this.scene = new THREE.Scene();
 		// Камера смотрит сверху вниз с лучшим обзором
 		this.camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
-		this.camera.position.set(0, 6, 4);
+
+		// Адаптируем позицию камеры для мобильных устройств
+		if (window.innerWidth <= 768) {
+			// Для мобильных устройств - более высокий угол обзора
+			this.camera.position.set(0, 8, 6);
+		} else {
+			this.camera.position.set(0, 6, 4);
+		}
 		this.camera.lookAt(0, 0, 0);
 
 		this.renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -116,7 +123,8 @@ class CoinTossGame {
 		// this.betButtonTextures = [headsBtnTexture, tailsBtnTexture, edgeBtnTexture]; // Не используется
 
 		// Создаем геометрию для кнопок (плоские прямоугольники)
-		const buttonGeometry = new THREE.PlaneGeometry(1, 1); // Уменьшаем размер
+		const buttonSize = window.innerWidth <= 768 ? 1.5 : 1; // Больше кнопки на мобильных
+		const buttonGeometry = new THREE.PlaneGeometry(buttonSize, buttonSize);
 
 		// Создаем материалы для кнопок с текстурами и яркими цветами
 		const headsMaterial = new THREE.MeshBasicMaterial({
@@ -146,9 +154,17 @@ class CoinTossGame {
 		// Тестовые кнопки убраны - текстуры работают
 
 		// Позиционируем кнопки ближе к камере
-		headsButton.position.set(-2, 0, 2);
-		edgeButton.position.set(0, 0, 2); // Ребро по центру
-		tailsButton.position.set(2, 0, 2);
+		// Позиционируем кнопки
+		if (window.innerWidth <= 768) {
+			// Для мобильных - более компактное расположение
+			headsButton.position.set(-1.5, 0, 2);
+			edgeButton.position.set(0, 0, 2); // Ребро по центру
+			tailsButton.position.set(1.5, 0, 2);
+		} else {
+			headsButton.position.set(-2, 0, 2);
+			edgeButton.position.set(0, 0, 2); // Ребро по центру
+			tailsButton.position.set(2, 0, 2);
+		}
 
 		// Поворачиваем кнопки лицом к камере
 		headsButton.rotation.x = -Math.PI / 2;
@@ -296,6 +312,14 @@ class CoinTossGame {
 		this.camera.aspect = window.innerWidth / window.innerHeight;
 		this.camera.updateProjectionMatrix();
 		this.renderer.setSize(window.innerWidth, window.innerHeight);
+
+		// Адаптируем камеру при изменении размера окна
+		if (window.innerWidth <= 768) {
+			this.camera.position.set(0, 8, 6);
+		} else {
+			this.camera.position.set(0, 6, 4);
+		}
+		this.camera.lookAt(0, 0, 0);
 	}
 
 	private animate = (): void => {

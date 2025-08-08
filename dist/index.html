@@ -65,6 +65,69 @@
 				text-align: center;
 				z-index: 100;
 			}
+
+			/* Мобильные устройства */
+			@media (max-width: 768px) {
+				#result {
+					font-size: 2em;
+					top: 10px;
+				}
+				#result.edge {
+					font-size: 2.5em;
+				}
+				#balance {
+					font-size: 1.2em;
+					top: 10px;
+					right: 10px;
+				}
+				#bet-info {
+					font-size: 1em;
+					top: 40px;
+					right: 10px;
+				}
+				#payout-info {
+					font-size: 0.8em;
+					top: 70px;
+					right: 10px;
+				}
+				#instructions {
+					font-size: 1em;
+					bottom: 10px;
+					padding: 0 10px;
+				}
+			}
+
+			/* Портретный режим на мобильных */
+			@media (max-width: 768px) and (orientation: portrait) {
+				#result {
+					font-size: 1.5em;
+					top: 5px;
+				}
+				#result.edge {
+					font-size: 2em;
+				}
+				#balance {
+					font-size: 1em;
+					top: 5px;
+					right: 5px;
+				}
+				#bet-info {
+					font-size: 0.9em;
+					top: 30px;
+					right: 5px;
+				}
+				#payout-info {
+					font-size: 0.7em;
+					top: 55px;
+					right: 5px;
+				}
+				#instructions {
+					font-size: 0.9em;
+					bottom: 5px;
+					padding: 0 5px;
+				}
+			}
+
 			/* Кнопки теперь создаются в Three.js */
 		</style>
 		<script type="module" crossorigin src="./assets/index.js"></script>
