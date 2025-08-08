@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="ru">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Игра подбрасывания монетки</title>
+		<style>
+			body {
+				margin: 0;
+				overflow: hidden;
+				background: #111;
+				font-family: Arial, sans-serif;
+			}
+			canvas {
+				display: block;
+			}
+			#result {
+				position: absolute;
+				top: 20px;
+				left: 50%;
+				transform: translateX(-50%);
+				color: white;
+				font-size: 3em;
+				font-weight: bold;
+				text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+				z-index: 100;
+				transition: all 0.3s ease;
+			}
+			#result.edge {
+				color: #ffd700;
+				font-size: 4em;
+			}
+			#balance {
+				position: absolute;
+				top: 20px;
+				right: 20px;
+				color: #00ff00;
+				font-size: 1.5em;
+				font-weight: bold;
+				z-index: 100;
+			}
+			#bet-info {
+				position: absolute;
+				top: 60px;
+				right: 20px;
+				color: #ffff00;
+				font-size: 1.2em;
+				z-index: 100;
+			}
+			#payout-info {
+				position: absolute;
+				top: 100px;
+				right: 20px;
+				color: #cccccc;
+				font-size: 1em;
+				z-index: 100;
+			}
+			#instructions {
+				position: absolute;
+				bottom: 20px;
+				left: 50%;
+				transform: translateX(-50%);
+				color: #ccc;
+				font-size: 1.2em;
+				text-align: center;
+				z-index: 100;
+			}
+			/* Кнопки теперь создаются в Three.js */
+		</style>
+	</head>
+	<body>
+		<div id="result"></div>
+		<div id="balance">Баланс: 1000</div>
+		<div id="bet-info">Ставка: 10</div>
+		<div id="payout-info">
+			Выплаты:<br />
+			Орёл/Решка: x1.98<br />
+			Ребро: x48.5
+		</div>
+		<!-- Кнопки теперь создаются в Three.js -->
+		<div id="instructions">Сделайте ставку и подбросьте монетку!</div>
+		<script type="module" src="/src/main.ts"></script>
+	</body>
+</html>
