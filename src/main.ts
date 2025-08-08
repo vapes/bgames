@@ -73,8 +73,8 @@ class CoinTossGame {
 
 		// Загружаем текстуры для орла и решки
 		const textureLoader = new THREE.TextureLoader();
-		const headsTexture = textureLoader.load('/textures/heads.png');
-		const tailsTexture = textureLoader.load('/textures/tails.png');
+		const headsTexture = textureLoader.load('./textures/heads.png');
+		const tailsTexture = textureLoader.load('./textures/tails.png');
 
 		// Поворачиваем текстуры по центру
 		headsTexture.center.set(0.5, 0.5);
@@ -109,9 +109,9 @@ class CoinTossGame {
 		const textureLoader = new THREE.TextureLoader();
 
 		// Загружаем текстуры кнопок
-		const headsBtnTexture = textureLoader.load('/textures/heads-btn.png');
-		const tailsBtnTexture = textureLoader.load('/textures/tails-btn.png');
-		const edgeBtnTexture = textureLoader.load('/textures/edge-btn.png');
+		const headsBtnTexture = textureLoader.load('./textures/heads-btn.png');
+		const tailsBtnTexture = textureLoader.load('./textures/tails-btn.png');
+		const edgeBtnTexture = textureLoader.load('./textures/edge-btn.png');
 
 		// this.betButtonTextures = [headsBtnTexture, tailsBtnTexture, edgeBtnTexture]; // Не используется
 
